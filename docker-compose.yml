@@ -1,0 +1,28 @@
+version: "3"
+services:
+  contact-service:
+    build:
+      dockerfile: ./contact-service/Dockerfile
+      context: .
+    restart: on-failure
+    container_name: contact-service
+    ports:
+      - "8082:8082"
+    networks:
+      - app-net
+  user-service:
+    build:
+      dockerfile: ./user-service/Dockerfile
+      context: .
+    restart: on-failure
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - contact-service
+    networks:
+      - app-net
+
+networks:
+  app-net:
+

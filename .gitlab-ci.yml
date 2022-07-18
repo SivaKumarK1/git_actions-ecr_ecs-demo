@@ -1,0 +1,37 @@
+image: docker/compose:latest
+services:
+  - docker:dind
+
+stages:  
+  - maven-compile # build
+  - build #Docker compose up step
+  - docker-deploy # Docker Hub
+  
+maven-job:
+  image: maven
+  stage: maven-compile
+  script:
+    - sh Jars.sh
+  artifacts:
+    paths:
+      - user_service/target/*.jar
+      - contact_service/target/*.jar
+
+build-job:    
+  stage: build
+  dependencies:
+    - maven-job
+  script:
+    - echo "Compiling the code..."
+    - docker-compose up --build -d
+    - echo "Compile complete."
+
+docker-job:
+  stage: docker-deploy
+  dependencies:
+    - maven-job
+  script:
+    - sh Docker_Deploy.sh
+    # - docker login -u "anil76201" -p "Reddy@0108" docker.io
+    # - docker-compose push 
+
